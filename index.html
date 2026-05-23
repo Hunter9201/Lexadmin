@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lex · Admin Panel (Upload Images Directly)</title>
+    <title>Lex · Admin Panel (Upload Images & Videos)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -26,9 +26,8 @@
         .lawyer-item { background: #f8fafc; border-radius: 60px; padding: 10px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .token-info { font-size: 0.7rem; color: #4b5563; margin-top: 4px; }
         .mode-badge { background: #eef2ff; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; display: inline-block; margin-bottom: 1rem; }
-        .image-preview { margin-top: 8px; max-width: 100%; max-height: 150px; border-radius: 16px; display: none; }
-        .file-input-wrapper { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .file-input-wrapper button { margin-top: 0; }
+        .preview { margin-top: 8px; max-width: 100%; max-height: 150px; border-radius: 16px; display: none; }
+        .file-info { font-size: 0.75rem; color: #4b5563; margin-top: 6px; }
     </style>
 </head>
 <body>
@@ -78,7 +77,7 @@
                 <option value="text">📝 Text</option>
                 <option value="article">📰 Article link</option>
                 <option value="image">🖼️ Image (upload from computer)</option>
-                <option value="video">🎬 Video URL (YouTube/Vimeo)</option>
+                <option value="video">🎬 Video (upload from computer, max 5MB)</option>
             </select>
         </div>
         <div class="form-group">
@@ -93,13 +92,24 @@
                 <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/gif,image/webp">
                 <button type="button" id="clearImageBtn" class="btn-secondary" style="background:#9ca3af;">Clear</button>
             </div>
-            <img id="imagePreview" class="image-preview" alt="Preview">
+            <img id="imagePreview" class="preview" alt="Preview">
             <div class="token-info">Image will be uploaded to GitHub and stored permanently.</div>
+        </div>
+        
+        <!-- Video upload section (visible when type = video) -->
+        <div id="videoUploadGroup" style="display: none;">
+            <label>Upload Video from your computer (max 5MB)</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo">
+                <button type="button" id="clearVideoBtn" class="btn-secondary" style="background:#9ca3af;">Clear</button>
+            </div>
+            <div id="videoInfo" class="file-info"></div>
+            <div class="token-info">Video will be uploaded to GitHub. Max size 5MB. Supported formats: MP4, WebM, MOV, AVI.</div>
         </div>
         
         <!-- Manual URL field (for article/video, and also fallback for image if user wants URL) -->
         <div class="form-group" id="mediaUrlGroup">
-            <label>Media URL (optional for text, required for article/video, or enter image URL directly)</label>
+            <label>Media URL (optional for text, required for article, or enter direct URL for image/video)</label>
             <input type="url" id="mediaUrl" placeholder="https://...">
         </div>
         
@@ -113,13 +123,14 @@
     const GITHUB_REPO = "I";                // CHANGE
     const GITHUB_BRANCH = "main";
     const DATA_JSON_PATH = "lex_data.json";
-    const UPLOAD_FOLDER = "uploads/";       // Images will be stored here
+    const UPLOAD_FOLDER = "uploads/";       // Images and videos go here
+    const MAX_VIDEO_SIZE_MB = 5;
     const EXPIRY_HOURS = 48;
 
     let currentData = { lawyers: [], updates: [] };
     let currentSha = null;
-    let pendingImageFile = null;      // stores the selected file object
-    let uploadedImageUrl = null;       // after upload, store URL
+    let pendingImageFile = null;
+    let pendingVideoFile = null;
 
     function ghHeaders(token) {
         return {
@@ -129,22 +140,22 @@
         };
     }
 
-    // Upload a single image file to GitHub under UPLOAD_FOLDER
-    async function uploadImageToGitHub(file, token) {
-        const filename = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-]/g, '_')}`;
+    async function uploadFileToGitHub(file, token) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
+        const timestamp = Date.now();
+        const filename = `${timestamp}_${safeName}`;
         const path = UPLOAD_FOLDER + filename;
         const reader = new FileReader();
         return new Promise((resolve, reject) => {
             reader.onload = async () => {
-                const base64Content = reader.result.split(',')[1]; // remove data:image/...;base64,
+                const base64Content = reader.result.split(',')[1];
                 const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
                 const body = {
-                    message: `Upload image ${filename}`,
+                    message: `Upload file ${filename}`,
                     content: base64Content,
                     branch: GITHUB_BRANCH
                 };
                 try {
-                    // Check if file already exists (get sha)
                     let sha = null;
                     try {
                         const checkRes = await fetch(url, { headers: ghHeaders(token) });
@@ -160,7 +171,6 @@
                         body: JSON.stringify(body)
                     });
                     if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-                    const result = await res.json();
                     const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`;
                     resolve(rawUrl);
                 } catch (err) {
@@ -315,14 +325,13 @@
         const content = document.getElementById("content").value.trim();
         let mediaUrl = document.getElementById("mediaUrl").value.trim();
         
-        // Handle image upload if type is image and we have a pending file
+        // Handle image upload
         if (type === "image") {
             if (pendingImageFile) {
-                showStatus("Uploading image to GitHub...", "success");
+                showStatus("Uploading image...", "success");
                 try {
-                    const uploadedUrl = await uploadImageToGitHub(pendingImageFile, token);
+                    const uploadedUrl = await uploadFileToGitHub(pendingImageFile, token);
                     mediaUrl = uploadedUrl;
-                    // Clear the pending image and preview
                     pendingImageFile = null;
                     document.getElementById("imageFileInput").value = "";
                     document.getElementById("imagePreview").style.display = "none";
@@ -337,16 +346,41 @@
             }
         }
         
-        if (!content && type !== "image") {
+        // Handle video upload
+        if (type === "video") {
+            if (pendingVideoFile) {
+                // Validate size (max 5MB)
+                if (pendingVideoFile.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+                    showStatus(`Video exceeds ${MAX_VIDEO_SIZE_MB}MB limit. Please compress or choose a smaller file.`, "error");
+                    return;
+                }
+                showStatus("Uploading video...", "success");
+                try {
+                    const uploadedUrl = await uploadFileToGitHub(pendingVideoFile, token);
+                    mediaUrl = uploadedUrl;
+                    pendingVideoFile = null;
+                    document.getElementById("videoFileInput").value = "";
+                    document.getElementById("videoInfo").innerHTML = "";
+                } catch (err) {
+                    showStatus("Video upload failed: " + err.message, "error");
+                    return;
+                }
+            } else if (!mediaUrl) {
+                showStatus("Please select a video file or provide a video URL.", "error");
+                return;
+            }
+        }
+        
+        if (!content && type !== "image" && type !== "video") {
             showStatus("Please enter content for text/article updates.", "error");
             return;
         }
-        if ((type === "video" || type === "article") && !mediaUrl) {
-            showStatus("Please provide a URL for this update type.", "error");
+        if ((type === "article") && !mediaUrl) {
+            showStatus("Please provide a URL for article updates.", "error");
             return;
         }
-        if (type === "image" && !mediaUrl) {
-            showStatus("Image URL missing (upload failed or none provided).", "error");
+        if ((type === "image" || type === "video") && !mediaUrl) {
+            showStatus("Media URL missing (upload failed or none provided).", "error");
             return;
         }
         
@@ -378,11 +412,14 @@
             showStatus("✅ Update posted! Appears on main site within 30 sec.", "success");
             document.getElementById("content").value = "";
             document.getElementById("mediaUrl").value = "";
-            // Clear image related
+            // Clear image & video pending
             pendingImageFile = null;
+            pendingVideoFile = null;
             document.getElementById("imageFileInput").value = "";
             document.getElementById("imagePreview").style.display = "none";
             document.getElementById("imagePreview").src = "";
+            document.getElementById("videoFileInput").value = "";
+            document.getElementById("videoInfo").innerHTML = "";
             await loadData(token);
         } catch (err) {
             showStatus("Error: " + err.message, "error");
@@ -401,33 +438,42 @@
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
     }
 
-    // Toggle image upload UI based on update type
-    function toggleImageUpload() {
+    function toggleMediaUpload() {
         const type = document.getElementById("updateType").value;
         const imageGroup = document.getElementById("imageUploadGroup");
+        const videoGroup = document.getElementById("videoUploadGroup");
         const mediaUrlGroup = document.getElementById("mediaUrlGroup");
+        
+        imageGroup.style.display = "none";
+        videoGroup.style.display = "none";
+        
         if (type === "image") {
             imageGroup.style.display = "block";
-            // For images, mediaUrl field becomes optional (but we'll use uploaded file)
-            mediaUrlGroup.style.display = "block"; // keep visible for fallback URL
-            document.querySelector("#mediaUrlGroup label").innerHTML = "Image URL (optional – if you prefer a direct link instead of upload)";
-        } else {
-            imageGroup.style.display = "none";
             mediaUrlGroup.style.display = "block";
-            if (type === "video") document.querySelector("#mediaUrlGroup label").innerHTML = "Video URL (required)";
-            else if (type === "article") document.querySelector("#mediaUrlGroup label").innerHTML = "Article URL (required)";
+            document.querySelector("#mediaUrlGroup label").innerHTML = "Image URL (optional – if you prefer a direct link instead of upload)";
+        } else if (type === "video") {
+            videoGroup.style.display = "block";
+            mediaUrlGroup.style.display = "block";
+            document.querySelector("#mediaUrlGroup label").innerHTML = "Video URL (optional – if you prefer a direct link instead of upload)";
+        } else {
+            mediaUrlGroup.style.display = "block";
+            if (type === "article") document.querySelector("#mediaUrlGroup label").innerHTML = "Article URL (required)";
             else document.querySelector("#mediaUrlGroup label").innerHTML = "Media URL (optional)";
         }
-        // Clear pending image when switching away
+        // Clear pending files when switching away
         if (type !== "image") {
             pendingImageFile = null;
             document.getElementById("imageFileInput").value = "";
             document.getElementById("imagePreview").style.display = "none";
             document.getElementById("imagePreview").src = "";
         }
+        if (type !== "video") {
+            pendingVideoFile = null;
+            document.getElementById("videoFileInput").value = "";
+            document.getElementById("videoInfo").innerHTML = "";
+        }
     }
 
-    // Handle image file selection
     function handleImageFileSelect() {
         const fileInput = document.getElementById("imageFileInput");
         const file = fileInput.files[0];
@@ -446,11 +492,36 @@
         }
     }
 
+    function handleVideoFileSelect() {
+        const fileInput = document.getElementById("videoFileInput");
+        const file = fileInput.files[0];
+        if (file && file.type.startsWith("video/")) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
+                document.getElementById("videoInfo").innerHTML = `<span style="color:#b91c1c;">❌ File exceeds ${MAX_VIDEO_SIZE_MB}MB (${sizeMB}MB). Please choose a smaller video.</span>`;
+                pendingVideoFile = null;
+                fileInput.value = "";
+                return;
+            }
+            pendingVideoFile = file;
+            document.getElementById("videoInfo").innerHTML = `<span style="color:#166534;">✅ Ready to upload: ${file.name} (${sizeMB} MB)</span>`;
+        } else {
+            pendingVideoFile = null;
+            document.getElementById("videoInfo").innerHTML = "";
+        }
+    }
+
     function clearImage() {
         pendingImageFile = null;
         document.getElementById("imageFileInput").value = "";
         document.getElementById("imagePreview").style.display = "none";
         document.getElementById("imagePreview").src = "";
+    }
+
+    function clearVideo() {
+        pendingVideoFile = null;
+        document.getElementById("videoFileInput").value = "";
+        document.getElementById("videoInfo").innerHTML = "";
     }
 
     // Event listeners
@@ -469,9 +540,11 @@
         if (!token) { showStatus("Enter GitHub token first.", "error"); return; }
         await postUpdate(token);
     });
-    document.getElementById("updateType").addEventListener("change", toggleImageUpload);
+    document.getElementById("updateType").addEventListener("change", toggleMediaUpload);
     document.getElementById("imageFileInput").addEventListener("change", handleImageFileSelect);
     document.getElementById("clearImageBtn").addEventListener("click", clearImage);
+    document.getElementById("videoFileInput").addEventListener("change", handleVideoFileSelect);
+    document.getElementById("clearVideoBtn").addEventListener("click", clearVideo);
     
     // Auto-load if token already in localStorage
     const storedToken = localStorage.getItem("lex_admin_token");
@@ -486,10 +559,9 @@
             loadData(token).catch(console.warn);
         }
     });
-    document.getElementById("modeDisplay").innerHTML = '<i class="fas fa-shield-alt"></i> Master admin: you can add/edit lawyers AND post updates for any lawyer. Now you can upload images directly!';
+    document.getElementById("modeDisplay").innerHTML = '<i class="fas fa-shield-alt"></i> Master admin: add/edit lawyers, post updates. Now supports direct video upload (max 5MB)!';
     
-    // Initial UI setup
-    toggleImageUpload();
+    toggleMediaUpload();
 </script>
 </body>
 </html>
