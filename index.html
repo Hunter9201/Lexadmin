@@ -2,58 +2,377 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lex · Admin Panel (Full Management)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Lex · Admin Suite — Article Studio & Lawyer Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f1f5f9; padding: 2rem; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 32px; padding: 2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
-        h1 { font-size: 1.6rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
-        h2 { font-size: 1.2rem; margin: 1.5rem 0 1rem; border-left: 4px solid #1e4a6e; padding-left: 12px; }
-        .form-group { margin-bottom: 1.2rem; }
-        label { font-weight: 600; display: block; margin-bottom: 6px; font-size: 0.85rem; }
-        input, select, textarea { width: 100%; padding: 10px 14px; border-radius: 40px; border: 1px solid #cbd5e1; font-family: inherit; }
-        button { background: #1e4a6e; color: white; border: none; padding: 10px 20px; border-radius: 40px; font-weight: 600; cursor: pointer; margin-right: 8px; }
-        .btn-secondary { background: #4b5563; }
-        .btn-danger { background: #b91c1c; }
-        .btn-warning { background: #eab308; color: #1f2937; }
-        .status { margin-top: 1rem; padding: 10px; border-radius: 20px; font-size: 0.85rem; display: none; }
-        .success { background: #dcfce7; color: #166534; display: block; }
-        .error { background: #fee2e2; color: #991b1b; display: block; }
-        hr { margin: 1.5rem 0; }
-        .lawyer-list, .updates-list { margin-top: 1rem; }
-        .lawyer-item, .update-item { background: #f8fafc; border-radius: 60px; padding: 10px 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .update-item { border-radius: 20px; flex-direction: column; align-items: stretch; }
-        .update-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .update-details { font-size: 0.85rem; color: #4b5563; margin-top: 8px; padding: 8px; background: #fff; border-radius: 16px; }
-        .token-info { font-size: 0.7rem; color: #4b5563; margin-top: 4px; }
-        .mode-badge { background: #eef2ff; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; display: inline-block; margin-bottom: 1rem; }
-        .preview { margin-top: 8px; max-width: 100%; max-height: 150px; border-radius: 16px; display: none; }
-        .file-info { font-size: 0.75rem; color: #4b5563; margin-top: 6px; }
-        .edit-form { background: #f1f5f9; padding: 12px; border-radius: 20px; margin-top: 12px; display: none; }
-        .edit-form.active { display: block; }
-        .inline-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f8;
+            padding: 2rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 40px;
+            padding: 2rem 2rem 2.5rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            color: #0a2b3e;
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            margin: 1.8rem 0 1.2rem;
+            border-left: 5px solid #1e4a6e;
+            padding-left: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 1.3rem;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: #1e2f3e;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 60px;
+            border: 1px solid #cfdfed;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            background: #ffffff;
+            transition: 0.2s;
+        }
+
+        textarea {
+            border-radius: 24px;
+            resize: vertical;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2c6e9e;
+            box-shadow: 0 0 0 3px rgba(30, 74, 110, 0.15);
+        }
+
+        button {
+            background: #1e4a6e;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background: #0f3650;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        .btn-danger {
+            background: #b91c1c;
+        }
+
+        .btn-danger:hover {
+            background: #991b1b;
+        }
+
+        .btn-warning {
+            background: #eab308;
+            color: #1f2937;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: #1e4a6e;
+        }
+
+        .status {
+            margin-top: 1.2rem;
+            padding: 12px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            display: none;
+            font-weight: 500;
+        }
+
+        .success {
+            background: #e0f2e9;
+            color: #0f5132;
+            display: block;
+            border-left: 4px solid #198754;
+        }
+
+        .error {
+            background: #ffe6e5;
+            color: #b91c1c;
+            display: block;
+            border-left: 4px solid #b91c1c;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border: none;
+            height: 1px;
+            background: #e2edf5;
+        }
+
+        /* lawyer list & cards */
+        .lawyer-list, .updates-list {
+            margin-top: 1.2rem;
+        }
+
+        .lawyer-card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 14px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eef3fc;
+        }
+
+        .lawyer-avatar-sm {
+            width: 44px;
+            height: 44px;
+            border-radius: 100px;
+            background: #eef2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #1e4a6e;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* ---------- ARTICLE CARD (premium frame) ---------- */
+        .article-preview-card {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+            overflow: hidden;
+            transition: all 0.2s;
+            border: 1px solid #e9edf2;
+        }
+
+        .article-inner {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .article-avatar-area {
+            flex-shrink: 0;
+            width: 85px;
+            text-align: center;
+        }
+
+        .lawyer-picture {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #eef2ff;
+            border: 3px solid white;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            display: block;
+            margin: 0 auto 8px;
+        }
+
+        .lawyer-initials-placeholder {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #d9e4f0, #cbdde9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: #1e3a5f;
+            margin: 0 auto 8px;
+        }
+
+        .article-content-area {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .article-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .lawyer-name-tag {
+            font-weight: 700;
+            color: #0f2c3f;
+            background: #eef3fc;
+            padding: 4px 12px;
+            border-radius: 60px;
+            font-size: 0.75rem;
+        }
+
+        .article-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 6px 0 12px;
+            color: #0c2e44;
+            line-height: 1.35;
+        }
+
+        .article-excerpt {
+            color: #2c3f4f;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            margin-bottom: 16px;
+        }
+
+        .article-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eef3fc;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1e4a6e;
+            text-decoration: none;
+        }
+
+        .update-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .standard-update-card {
+            background: #fafdff;
+            border-radius: 28px;
+            padding: 16px;
+            margin-bottom: 14px;
+            border-left: 5px solid #1e4a6e;
+        }
+
+        .edit-form {
+            background: #f8fafc;
+            border-radius: 28px;
+            margin-top: 16px;
+            padding: 16px;
+        }
+
+        .token-info, .file-info {
+            font-size: 0.7rem;
+            color: #4a627a;
+            margin-top: 5px;
+        }
+
+        .inline-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .preview-img {
+            max-width: 100px;
+            max-height: 70px;
+            border-radius: 14px;
+        }
+
+        .mode-badge {
+            background: #eef2ff;
+            padding: 6px 16px;
+            border-radius: 80px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 700px) {
+            .article-inner {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .article-avatar-area {
+                width: auto;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1><i class="fas fa-gavel"></i> Lex Admin Panel – Full Management</h1>
-    <div id="modeDisplay" class="mode-badge"></div>
+    <h1><i class="fas fa-scale-balanced"></i> Lex · Article Studio & Admin Core</h1>
+    <div id="modeDisplay" class="mode-badge"><i class="fas fa-magnifying-glass-chart"></i> Full Management + Premium Article Frames (lawyer picture integrated)</div>
 
     <div class="form-group">
         <label><i class="fab fa-github"></i> GitHub Token (repo scope)</label>
         <input type="password" id="githubToken" placeholder="github_pat_xxx...">
-        <div class="token-info">Required for all write operations. Stored locally in your browser.</div>
+        <div class="token-info">Required for writes. Stored locally.</div>
     </div>
 
-    <!-- ========== SECTION 1: MANAGE LAWYERS ========== -->
+    <!-- ========== SECTION 1: MANAGE LAWYERS (with Profile Picture) ========== -->
     <div id="manageLawyersSection">
-        <h2><i class="fas fa-users"></i> Manage Lawyer Profiles</h2>
+        <h2><i class="fas fa-user-astronaut"></i> Lawyer Profiles + Profile Photo</h2>
         <div class="form-group">
-            <label>Lawyer ID (unique number)</label>
-            <input type="number" id="lawyerId" placeholder="e.g., 1, 2, 3...">
+            <label>Lawyer ID (unique)</label>
+            <input type="number" id="lawyerId" placeholder="e.g., 1">
         </div>
         <div class="form-group">
             <label>Full Name</label>
@@ -63,8 +382,17 @@
             <label>Initials (2-3 letters)</label>
             <input type="text" id="lawyerInitials" placeholder="MS">
         </div>
+        <div class="form-group">
+            <label>👤 Profile Picture (upload image) — appears in article frame</label>
+            <div class="inline-buttons">
+                <input type="file" id="lawyerPicInput" accept="image/jpeg,image/png,image/webp">
+                <button type="button" id="clearLawyerPicBtn" class="btn-secondary">Clear</button>
+            </div>
+            <div id="currentLawyerPicPreview" style="margin-top: 8px;"></div>
+            <div class="token-info">Upload a square image for the perfect article avatar.</div>
+        </div>
         <div>
-            <button id="addLawyerBtn"><i class="fas fa-plus"></i> Add / Update Lawyer</button>
+            <button id="addLawyerBtn"><i class="fas fa-save"></i> Add / Update Lawyer</button>
             <button id="deleteLawyerBtn" class="btn-danger"><i class="fas fa-trash"></i> Delete Selected</button>
         </div>
         <div id="lawyerList" class="lawyer-list"></div>
@@ -73,61 +401,47 @@
 
     <!-- ========== SECTION 2: POST NEW UPDATE ========== -->
     <div id="postUpdatesSection">
-        <h2><i class="fas fa-paper-plane"></i> Post a New Update</h2>
+        <h2><i class="fas fa-newspaper"></i> Publish Article / Update</h2>
         <div class="form-group">
-            <label>Select Lawyer (who is posting)</label>
+            <label>Select Lawyer (author)</label>
             <select id="postingLawyerSelect"></select>
         </div>
         <div class="form-group">
             <label>Update Type</label>
             <select id="updateType">
-                <option value="text">📝 Text</option>
-                <option value="article">📰 Article link</option>
-                <option value="image">🖼️ Image (upload from computer)</option>
-                <option value="video">🎬 Video (upload from computer, max 5MB)</option>
+                <option value="text">📝 Text note</option>
+                <option value="article" selected>📰 Article (featured frame with lawyer picture)</option>
+                <option value="image">🖼️ Image</option>
+                <option value="video">🎬 Video</option>
             </select>
         </div>
         <div class="form-group">
-            <label>Content / Title</label>
-            <textarea id="content" rows="3" placeholder="What are you working on?"></textarea>
+            <label>Title / Content *</label>
+            <textarea id="content" rows="2" placeholder="Article headline or message..."></textarea>
         </div>
-        
-        <!-- Image upload section -->
         <div id="imageUploadGroup" style="display: none;">
-            <label>Upload Image from your computer</label>
-            <div class="inline-buttons">
-                <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/gif,image/webp">
-                <button type="button" id="clearImageBtn" class="btn-secondary">Clear</button>
-            </div>
-            <img id="imagePreview" class="preview" alt="Preview">
-            <div class="token-info">Image will be uploaded to GitHub.</div>
+            <label>Upload Image from computer</label>
+            <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/gif,image/webp">
+            <img id="imagePreview" class="preview-img" style="display: none; margin-top: 6px;">
         </div>
-        
-        <!-- Video upload section -->
         <div id="videoUploadGroup" style="display: none;">
-            <label>Upload Video from your computer (max 5MB)</label>
-            <div class="inline-buttons">
-                <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo">
-                <button type="button" id="clearVideoBtn" class="btn-secondary">Clear</button>
-            </div>
+            <label>Upload Video (max 5MB)</label>
+            <input type="file" id="videoFileInput" accept="video/mp4,video/webm">
             <div id="videoInfo" class="file-info"></div>
-            <div class="token-info">Video will be uploaded to GitHub. Max 5MB.</div>
         </div>
-        
         <div class="form-group" id="mediaUrlGroup">
-            <label>Media URL (optional for text, required for article, or direct link)</label>
-            <input type="url" id="mediaUrl" placeholder="https://...">
+            <label>Article Link / Media URL (required for article)</label>
+            <input type="url" id="mediaUrl" placeholder="https://example.com/full-article">
         </div>
-        
-        <button id="postUpdateBtn"><i class="fas fa-paper-plane"></i> Post Update</button>
+        <button id="postUpdateBtn"><i class="fas fa-paper-plane"></i> Publish Update</button>
         <div id="statusMsg" class="status"></div>
     </div>
 
-    <!-- ========== SECTION 3: MANAGE EXISTING UPDATES (Edit/Delete) ========== -->
+    <!-- ========== SECTION 3: MANAGE UPDATES WITH PREMIUM ARTICLE FRAME ========== -->
     <div id="manageUpdatesSection">
-        <h2><i class="fas fa-edit"></i> Manage Existing Updates (Edit / Delete)</h2>
+        <h2><i class="fas fa-palette"></i> Manage Updates — Articles with elegant frame & lawyer portrait</h2>
         <div class="form-group">
-            <label>Select Lawyer to view their updates</label>
+            <label>Select Lawyer to manage their posts</label>
             <select id="viewLawyerSelect"></select>
         </div>
         <div id="updatesList" class="updates-list"></div>
@@ -135,8 +449,8 @@
 </div>
 
 <script>
-    const GITHUB_OWNER = "hunter9201";      // CHANGE
-    const GITHUB_REPO = "I";                // CHANGE
+    const GITHUB_OWNER = "hunter9201";
+    const GITHUB_REPO = "I";
     const GITHUB_BRANCH = "main";
     const DATA_JSON_PATH = "lex_data.json";
     const UPLOAD_FOLDER = "uploads/";
@@ -147,9 +461,10 @@
     let currentSha = null;
     let pendingImageFile = null;
     let pendingVideoFile = null;
-    let currentlyEditingUpdateId = null;
+    let pendingLawyerPicFile = null;      // for lawyer profile image upload
+    let editingLawyerIdTemp = null;        // track selected lawyer for picture preview
 
-    // Helper functions
+    // Helper: GH headers
     function ghHeaders(token) {
         return {
             "Accept": "application/vnd.github+json",
@@ -158,32 +473,30 @@
         };
     }
 
-    async function uploadFileToGitHub(file, token) {
+    async function uploadFileToGitHub(file, token, customFolder = UPLOAD_FOLDER) {
         const safeName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '_');
         const timestamp = Date.now();
         const filename = `${timestamp}_${safeName}`;
-        const path = UPLOAD_FOLDER + filename;
+        const path = (customFolder || UPLOAD_FOLDER) + filename;
         const reader = new FileReader();
         return new Promise((resolve, reject) => {
             reader.onload = async () => {
                 const base64Content = reader.result.split(',')[1];
                 const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
-                const body = { message: `Upload file ${filename}`, content: base64Content, branch: GITHUB_BRANCH };
+                let sha = null;
                 try {
-                    let sha = null;
-                    try {
-                        const checkRes = await fetch(url, { headers: ghHeaders(token) });
-                        if (checkRes.ok) {
-                            const existing = await checkRes.json();
-                            sha = existing.sha;
-                            body.sha = sha;
-                        }
-                    } catch(e) {}
-                    const res = await fetch(url, { method: "PUT", headers: { ...ghHeaders(token), "Content-Type": "application/json" }, body: JSON.stringify(body) });
-                    if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-                    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`;
-                    resolve(rawUrl);
-                } catch (err) { reject(err); }
+                    const checkRes = await fetch(url, { headers: ghHeaders(token) });
+                    if (checkRes.ok) {
+                        const existing = await checkRes.json();
+                        sha = existing.sha;
+                    }
+                } catch(e) {}
+                const body = { message: `Upload ${filename}`, content: base64Content, branch: GITHUB_BRANCH };
+                if (sha) body.sha = sha;
+                const res = await fetch(url, { method: "PUT", headers: { ...ghHeaders(token), "Content-Type": "application/json" }, body: JSON.stringify(body) });
+                if (!res.ok) throw new Error(`Upload fail: ${res.status}`);
+                const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${path}`;
+                resolve(rawUrl);
             };
             reader.onerror = () => reject(new Error("File read error"));
             reader.readAsDataURL(file);
@@ -199,7 +512,11 @@
             const json = await res.json();
             const content = atob(json.content);
             const data = JSON.parse(content);
-            return { exists: true, sha: json.sha, data: data };
+            if (!data.lawyers) data.lawyers = [];
+            if (!data.updates) data.updates = [];
+            // ensure each lawyer has profilePic field (migration)
+            for (let l of data.lawyers) if (!l.profilePic) l.profilePic = null;
+            return { exists: true, sha: json.sha, data };
         } catch (err) { throw new Error("Fetch failed: " + err.message); }
     }
 
@@ -214,7 +531,6 @@
         return result.content.sha;
     }
 
-    // Remove expired updates (based on expiresAt)
     function removeExpiredUpdates(data) {
         const now = Date.now();
         let changed = false;
@@ -230,7 +546,6 @@
         const { exists, sha, data } = await fetchData(token);
         currentData = data;
         currentSha = sha;
-        // Auto-clean expired updates
         if (removeExpiredUpdates(currentData)) {
             await saveData(currentData, currentSha, token);
             currentSha = (await fetchData(token)).sha;
@@ -240,21 +555,24 @@
         renderViewLawyerSelect();
     }
 
-    // Render lawyers for management
     function renderLawyerList() {
         const container = document.getElementById("lawyerList");
         if (!container) return;
         if (currentData.lawyers.length === 0) {
-            container.innerHTML = "<div class='lawyer-item'>No lawyers yet. Add one above.</div>";
+            container.innerHTML = "<div class='lawyer-card'>No lawyers. Add one above.</div>";
             return;
         }
         container.innerHTML = "";
         currentData.lawyers.forEach(l => {
+            const picHtml = l.profilePic ? `<img src="${l.profilePic}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;">` : `<div class="lawyer-avatar-sm">${l.initials?.[0] || 'A'}</div>`;
             const div = document.createElement("div");
-            div.className = "lawyer-item";
+            div.className = "lawyer-card";
             div.innerHTML = `
-                <span><strong>${escapeHtml(l.name)}</strong> (ID: ${l.id}, Initials: ${l.initials})</span>
-                <button class="select-lawyer-btn" data-id="${l.id}" style="background:#1e4a6e; padding:4px 12px;">Select to Edit</button>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    ${picHtml}
+                    <div><strong>${escapeHtml(l.name)}</strong> (ID: ${l.id}, ${l.initials})</div>
+                </div>
+                <button class="select-lawyer-btn" data-id="${l.id}" style="background:#1e4a6e; padding:6px 16px;">✏️ Edit & Set Pic</button>
             `;
             container.appendChild(div);
         });
@@ -266,6 +584,12 @@
                     document.getElementById("lawyerId").value = lawyer.id;
                     document.getElementById("lawyerName").value = lawyer.name;
                     document.getElementById("lawyerInitials").value = lawyer.initials;
+                    editingLawyerIdTemp = id;
+                    const previewDiv = document.getElementById("currentLawyerPicPreview");
+                    if (lawyer.profilePic) previewDiv.innerHTML = `<img src="${lawyer.profilePic}" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:1px solid #cbd5e1;"> <span style="font-size:0.7rem;">Current picture</span>`;
+                    else previewDiv.innerHTML = `<span style="font-size:0.7rem;">No profile picture set</span>`;
+                    pendingLawyerPicFile = null;
+                    document.getElementById("lawyerPicInput").value = "";
                 }
             });
         });
@@ -275,14 +599,11 @@
         const select = document.getElementById("postingLawyerSelect");
         if (!select) return;
         select.innerHTML = "";
-        if (currentData.lawyers.length === 0) {
-            select.innerHTML = "<option disabled>No lawyers – create one first</option>";
-            return;
-        }
+        if (currentData.lawyers.length === 0) { select.innerHTML = "<option disabled>Add lawyer first</option>"; return; }
         currentData.lawyers.forEach(l => {
             const opt = document.createElement("option");
             opt.value = l.id;
-            opt.textContent = `${l.name} (ID ${l.id})`;
+            opt.textContent = `${l.name} (${l.initials})`;
             select.appendChild(opt);
         });
     }
@@ -290,7 +611,7 @@
     function renderViewLawyerSelect() {
         const select = document.getElementById("viewLawyerSelect");
         if (!select) return;
-        select.innerHTML = "<option value=''>-- Select Lawyer to manage updates --</option>";
+        select.innerHTML = "<option value=''>-- Select Lawyer to view posts --</option>";
         currentData.lawyers.forEach(l => {
             const opt = document.createElement("option");
             opt.value = l.id;
@@ -304,326 +625,228 @@
         };
     }
 
+    // Premium Article Frame Renderer (with lawyer picture)
+    function renderArticleFrame(update, lawyer) {
+        const expiryDate = new Date(update.expiresAt).toLocaleString();
+        const avatarHtml = lawyer?.profilePic ?
+            `<img src="${lawyer.profilePic}" class="lawyer-picture" alt="lawyer">` :
+            `<div class="lawyer-initials-placeholder">${(lawyer?.initials?.[0] || 'L')}</div>`;
+        return `
+            <div class="article-preview-card">
+                <div class="article-inner">
+                    <div class="article-avatar-area">
+                        ${avatarHtml}
+                        <div class="lawyer-name-tag" style="margin-top: 8px;">${escapeHtml(lawyer?.name || 'Advocate')}</div>
+                    </div>
+                    <div class="article-content-area">
+                        <div class="article-meta">
+                            <span><i class="far fa-clock"></i> ${new Date(update.timestamp).toLocaleDateString()}</span>
+                            <span><i class="far fa-calendar-alt"></i> Expires: ${expiryDate}</span>
+                            <span><i class="fas fa-tag"></i> Article</span>
+                        </div>
+                        <div class="article-title">${escapeHtml(update.content)}</div>
+                        <div class="article-excerpt">
+                            ${update.mediaUrl ? `🔗 Full article attached — click below to read more.` : 'Insights from legal expert.'}
+                        </div>
+                        ${update.mediaUrl ? `<a href="${update.mediaUrl}" target="_blank" class="article-link"><i class="fas fa-external-link-alt"></i> Read full article →</a>` : ''}
+                        <div class="update-actions">
+                            <button class="edit-update-btn" data-id="${update.id}" data-lawyer="${lawyer.id}" style="background:#eab308; color:#1f2937;">✏️ Edit</button>
+                            <button class="delete-update-btn" data-id="${update.id}" data-lawyer="${lawyer.id}" class="btn-danger" style="background:#b91c1c;">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     function renderUpdatesForLawyer(lawyerId) {
         const container = document.getElementById("updatesList");
+        const lawyer = currentData.lawyers.find(l => l.id === lawyerId);
+        if (!lawyer) { container.innerHTML = "<div>Lawyer not found</div>"; return; }
         const lawyerUpdates = currentData.updates.find(u => u.lawyerId === lawyerId);
         const updates = lawyerUpdates ? lawyerUpdates.updates : [];
         if (updates.length === 0) {
-            container.innerHTML = "<div class='update-item'>No updates found for this lawyer.</div>";
+            container.innerHTML = "<div class='standard-update-card'>✨ No updates yet for this lawyer.</div>";
             return;
         }
         container.innerHTML = "";
         updates.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
         updates.forEach(update => {
-            const div = document.createElement("div");
-            div.className = "update-item";
-            div.dataset.id = update.id;
-            const expiryDate = new Date(update.expiresAt).toLocaleString();
-            let mediaPreview = "";
-            if (update.type === "image" && update.mediaUrl) {
-                mediaPreview = `<img src="${update.mediaUrl}" style="max-width:100px; max-height:60px; border-radius:8px;">`;
-            } else if (update.type === "video" && update.mediaUrl) {
-                mediaPreview = `<video controls style="max-width:100px; max-height:60px;"><source src="${update.mediaUrl}"></video>`;
-            }
-            div.innerHTML = `
-                <div class="update-header">
-                    <strong>${escapeHtml(update.type.toUpperCase())}</strong>
-                    <span style="font-size:0.75rem;">Expires: ${expiryDate}</span>
-                    <div class="inline-buttons">
-                        <button class="edit-update-btn" data-id="${update.id}" data-lawyer="${lawyerId}" style="background:#eab308; color:#1f2937;">✏️ Edit</button>
-                        <button class="delete-update-btn" data-id="${update.id}" data-lawyer="${lawyerId}" class="btn-danger" style="background:#b91c1c;">🗑️ Delete</button>
+            if (update.type === "article") {
+                const articleHtml = renderArticleFrame(update, lawyer);
+                const wrapper = document.createElement("div");
+                wrapper.innerHTML = articleHtml;
+                const card = wrapper.firstElementChild;
+                container.appendChild(card);
+                // attach events after render
+                card.querySelectorAll(".edit-update-btn").forEach(btn => btn.addEventListener("click", (e) => showEditForm(update.id, lawyerId)));
+                card.querySelectorAll(".delete-update-btn").forEach(btn => btn.addEventListener("click", async (e) => { if(confirm("Delete?")) await deleteUpdate(lawyerId, update.id); }));
+            } else {
+                const expiryDate = new Date(update.expiresAt).toLocaleString();
+                let mediaPreview = "";
+                if (update.type === "image" && update.mediaUrl) mediaPreview = `<img src="${update.mediaUrl}" class="preview-img">`;
+                if (update.type === "video" && update.mediaUrl) mediaPreview = `<video controls style="max-width:120px; max-height:70px;"><source src="${update.mediaUrl}"></video>`;
+                const div = document.createElement("div");
+                div.className = "standard-update-card";
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; flex-wrap:wrap;">
+                        <strong>${update.type.toUpperCase()}</strong> <span style="font-size:0.7rem;">Expires: ${expiryDate}</span>
                     </div>
-                </div>
-                <div class="update-details">
-                    <div><strong>Content:</strong> ${escapeHtml(update.content)}</div>
-                    ${update.mediaUrl ? `<div><strong>Media URL:</strong> <a href="${update.mediaUrl}" target="_blank">${update.mediaUrl.substring(0, 50)}...</a></div>` : ''}
+                    <div>📄 ${escapeHtml(update.content)}</div>
+                    ${update.mediaUrl ? `<div><a href="${update.mediaUrl}" target="_blank">🔗 Media link</a></div>` : ''}
                     ${mediaPreview ? `<div>${mediaPreview}</div>` : ''}
-                    <div><strong>Posted:</strong> ${new Date(update.timestamp).toLocaleString()}</div>
-                </div>
-                <div id="edit-form-${update.id}" class="edit-form"></div>
-            `;
-            container.appendChild(div);
-        });
-        // Attach event listeners
-        document.querySelectorAll(".edit-update-btn").forEach(btn => {
-            btn.addEventListener("click", (e) => {
-                const updateId = parseInt(btn.dataset.id);
-                const lawyerId = parseInt(btn.dataset.lawyer);
-                showEditForm(updateId, lawyerId);
-            });
-        });
-        document.querySelectorAll(".delete-update-btn").forEach(btn => {
-            btn.addEventListener("click", async (e) => {
-                if (confirm("Delete this update permanently?")) {
-                    const updateId = parseInt(btn.dataset.id);
-                    const lawyerId = parseInt(btn.dataset.lawyer);
-                    await deleteUpdate(lawyerId, updateId);
-                }
-            });
+                    <div class="update-actions" style="margin-top: 10px;">
+                        <button class="edit-update-btn" data-id="${update.id}" data-lawyer="${lawyerId}" class="btn-warning">✏️ Edit</button>
+                        <button class="delete-update-btn" data-id="${update.id}" data-lawyer="${lawyerId}" class="btn-danger">Delete</button>
+                    </div>
+                    <div id="edit-form-${update.id}" class="edit-form"></div>
+                `;
+                container.appendChild(div);
+                div.querySelector(".edit-update-btn").addEventListener("click", () => showEditForm(update.id, lawyerId));
+                div.querySelector(".delete-update-btn").addEventListener("click", async () => { if(confirm("Delete?")) await deleteUpdate(lawyerId, update.id); });
+            }
         });
     }
 
     async function deleteUpdate(lawyerId, updateId) {
         const token = document.getElementById("githubToken").value.trim();
-        if (!token) { showStatus("Enter GitHub token first.", "error"); return; }
+        if (!token) { showStatus("Token required", "error"); return; }
         try {
             const lawyerUpdates = currentData.updates.find(u => u.lawyerId === lawyerId);
             if (lawyerUpdates) {
                 lawyerUpdates.updates = lawyerUpdates.updates.filter(u => u.id !== updateId);
                 const newSha = await saveData(currentData, currentSha, token);
                 currentSha = newSha;
-                showStatus("Update deleted successfully.", "success");
+                showStatus("Update deleted", "success");
                 await loadData(token);
                 renderUpdatesForLawyer(lawyerId);
             }
         } catch (err) { showStatus("Delete failed: " + err.message, "error"); }
     }
 
-    function showEditForm(updateId, lawyerId) {
-        const container = document.getElementById(`edit-form-${updateId}`);
-        if (!container) return;
+    async function showEditForm(updateId, lawyerId) {
         const lawyerUpdates = currentData.updates.find(u => u.lawyerId === lawyerId);
-        const update = lawyerUpdates ? lawyerUpdates.updates.find(u => u.id === updateId) : null;
+        const update = lawyerUpdates?.updates.find(u => u.id === updateId);
         if (!update) return;
-        currentlyEditingUpdateId = updateId;
-        container.innerHTML = `
-            <div style="margin-top:8px;">
-                <label>Edit Content</label>
-                <textarea id="editContent" rows="2">${escapeHtml(update.content)}</textarea>
-                <label>Edit Type</label>
-                <select id="editType">
-                    <option value="text" ${update.type === "text" ? "selected" : ""}>Text</option>
-                    <option value="article" ${update.type === "article" ? "selected" : ""}>Article</option>
-                    <option value="image" ${update.type === "image" ? "selected" : ""}>Image</option>
-                    <option value="video" ${update.type === "video" ? "selected" : ""}>Video</option>
-                </select>
-                <label>Media URL (leave as is to keep current)</label>
-                <input type="url" id="editMediaUrl" value="${escapeHtml(update.mediaUrl || '')}" placeholder="https://...">
-                <div style="margin-top:8px;">
-                    <button id="saveEditBtn" class="btn-secondary">Save Changes</button>
-                    <button id="cancelEditBtn" class="btn-secondary" style="background:#6b7280;">Cancel</button>
-                </div>
-            </div>
-        `;
-        container.classList.add("active");
-        document.getElementById("saveEditBtn").onclick = async () => {
-            const newContent = document.getElementById("editContent").value.trim();
-            const newType = document.getElementById("editType").value;
-            let newMediaUrl = document.getElementById("editMediaUrl").value.trim();
-            if (!newContent && newType !== "image" && newType !== "video") {
-                showStatus("Content cannot be empty.", "error"); return;
-            }
-            if ((newType === "article" || newType === "image" || newType === "video") && !newMediaUrl) {
-                showStatus("Media URL required for this type.", "error"); return;
-            }
-            update.content = newContent;
-            update.type = newType;
-            update.mediaUrl = newMediaUrl || null;
-            // Keep same expiry, timestamp unchanged
-            const token = document.getElementById("githubToken").value.trim();
-            if (!token) { showStatus("Enter GitHub token.", "error"); return; }
-            try {
-                const newSha = await saveData(currentData, currentSha, token);
-                currentSha = newSha;
-                showStatus("Update edited successfully.", "success");
-                await loadData(token);
-                renderUpdatesForLawyer(lawyerId);
-            } catch (err) { showStatus("Save failed: " + err.message, "error"); }
-        };
-        document.getElementById("cancelEditBtn").onclick = () => {
-            container.innerHTML = "";
-            container.classList.remove("active");
-            currentlyEditingUpdateId = null;
-        };
+        const token = document.getElementById("githubToken").value.trim();
+        if (!token) return showStatus("Token needed", "error");
+        const newContent = prompt("Edit content:", update.content);
+        if (newContent === null) return;
+        update.content = newContent.trim() || update.content;
+        const newUrl = prompt("Edit media URL (leave as is):", update.mediaUrl || "");
+        if (newUrl !== null) update.mediaUrl = newUrl || null;
+        try {
+            const newSha = await saveData(currentData, currentSha, token);
+            currentSha = newSha;
+            showStatus("Update saved", "success");
+            await loadData(token);
+            renderUpdatesForLawyer(lawyerId);
+        } catch (err) { showStatus("Error: " + err.message, "error"); }
     }
 
-    // Add/Update Lawyer
     async function addOrUpdateLawyer(token) {
         const id = parseInt(document.getElementById("lawyerId").value);
         const name = document.getElementById("lawyerName").value.trim();
         const initials = document.getElementById("lawyerInitials").value.trim().toUpperCase();
-        if (!id || !name || !initials) { showStatus("Please fill all fields.", "error"); return; }
-        const existingIndex = currentData.lawyers.findIndex(l => l.id === id);
-        if (existingIndex !== -1) {
-            currentData.lawyers[existingIndex] = { id, name, initials };
+        if (!id || !name || !initials) { showStatus("All lawyer fields required", "error"); return; }
+        let profilePicUrl = null;
+        if (pendingLawyerPicFile) {
+            showStatus("Uploading profile picture...", "success");
+            try {
+                profilePicUrl = await uploadFileToGitHub(pendingLawyerPicFile, token, "lawyer_photos/");
+                pendingLawyerPicFile = null;
+            } catch (err) { showStatus("Pic upload failed: " + err.message, "error"); return; }
         } else {
-            currentData.lawyers.push({ id, name, initials });
-            if (!currentData.updates.find(u => u.lawyerId === id)) {
-                currentData.updates.push({ lawyerId: id, updates: [] });
-            }
+            const existing = currentData.lawyers.find(l => l.id === id);
+            if (existing && existing.profilePic) profilePicUrl = existing.profilePic;
+        }
+        const existingIndex = currentData.lawyers.findIndex(l => l.id === id);
+        const lawyerObj = { id, name, initials, profilePic: profilePicUrl };
+        if (existingIndex !== -1) currentData.lawyers[existingIndex] = lawyerObj;
+        else {
+            currentData.lawyers.push(lawyerObj);
+            if (!currentData.updates.find(u => u.lawyerId === id)) currentData.updates.push({ lawyerId: id, updates: [] });
         }
         try {
             const newSha = await saveData(currentData, currentSha, token);
             currentSha = newSha;
-            showStatus("Lawyer saved.", "success");
+            showStatus("Lawyer saved with picture", "success");
             await loadData(token);
-        } catch (err) { showStatus("Error: " + err.message, "error"); }
+            document.getElementById("lawyerPicInput").value = "";
+            document.getElementById("currentLawyerPicPreview").innerHTML = "";
+        } catch (err) { showStatus("Save error: " + err.message, "error"); }
     }
 
-    async function deleteLawyer(token) {
-        const id = parseInt(document.getElementById("lawyerId").value);
-        if (!id) { showStatus("Enter a Lawyer ID to delete.", "error"); return; }
-        if (!confirm(`Delete lawyer ID ${id} and all their updates?`)) return;
-        currentData.lawyers = currentData.lawyers.filter(l => l.id !== id);
-        currentData.updates = currentData.updates.filter(u => u.lawyerId !== id);
-        try {
-            const newSha = await saveData(currentData, currentSha, token);
-            currentSha = newSha;
-            showStatus("Lawyer deleted.", "success");
-            document.getElementById("lawyerId").value = "";
-            document.getElementById("lawyerName").value = "";
-            document.getElementById("lawyerInitials").value = "";
-            await loadData(token);
-        } catch (err) { showStatus("Error: " + err.message, "error"); }
-    }
-
-    // Post new update
     async function postUpdate(token) {
         const lawyerId = parseInt(document.getElementById("postingLawyerSelect").value);
-        if (!lawyerId) { showStatus("Select a lawyer.", "error"); return; }
+        if (!lawyerId) { showStatus("Select lawyer", "error"); return; }
         const type = document.getElementById("updateType").value;
-        const content = document.getElementById("content").value.trim();
+        let content = document.getElementById("content").value.trim();
         let mediaUrl = document.getElementById("mediaUrl").value.trim();
-        
         if (type === "image" && pendingImageFile) {
-            showStatus("Uploading image...", "success");
-            try {
-                mediaUrl = await uploadFileToGitHub(pendingImageFile, token);
-                pendingImageFile = null;
-                document.getElementById("imageFileInput").value = "";
-                document.getElementById("imagePreview").style.display = "none";
-            } catch (err) { showStatus("Image upload failed: " + err.message, "error"); return; }
+            mediaUrl = await uploadFileToGitHub(pendingImageFile, token);
+            pendingImageFile = null;
+            document.getElementById("imagePreview").style.display = "none";
         }
         if (type === "video" && pendingVideoFile) {
-            if (pendingVideoFile.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
-                showStatus(`Video exceeds ${MAX_VIDEO_SIZE_MB}MB.`, "error"); return;
-            }
-            showStatus("Uploading video...", "success");
-            try {
-                mediaUrl = await uploadFileToGitHub(pendingVideoFile, token);
-                pendingVideoFile = null;
-                document.getElementById("videoFileInput").value = "";
-                document.getElementById("videoInfo").innerHTML = "";
-            } catch (err) { showStatus("Video upload failed: " + err.message, "error"); return; }
+            if (pendingVideoFile.size > MAX_VIDEO_SIZE_MB*1024*1024) { showStatus(`Video > ${MAX_VIDEO_SIZE_MB}MB`, "error"); return; }
+            mediaUrl = await uploadFileToGitHub(pendingVideoFile, token);
+            pendingVideoFile = null;
         }
-        
-        if (!content && type !== "image" && type !== "video") { showStatus("Enter content.", "error"); return; }
-        if ((type === "article") && !mediaUrl) { showStatus("Provide article URL.", "error"); return; }
-        if ((type === "image" || type === "video") && !mediaUrl) { showStatus("Media URL missing.", "error"); return; }
-        
+        if (!content && type !== "image" && type !== "video") { showStatus("Content required", "error"); return; }
+        if ((type === "article") && !mediaUrl) { showStatus("Article URL required", "error"); return; }
         let lawyerUpdates = currentData.updates.find(u => u.lawyerId === lawyerId);
-        if (!lawyerUpdates) {
-            lawyerUpdates = { lawyerId, updates: [] };
-            currentData.updates.push(lawyerUpdates);
-        }
-        const oneDay = 24 * 60 * 60 * 1000;
+        if (!lawyerUpdates) { lawyerUpdates = { lawyerId, updates: [] }; currentData.updates.push(lawyerUpdates); }
+        const oneDay = 24*3600000;
         const now = Date.now();
-        const todayUpdates = lawyerUpdates.updates.filter(up => (now - new Date(up.timestamp).getTime()) < oneDay);
-        if (todayUpdates.length >= 20) { showStatus("Daily limit (20) reached.", "error"); return; }
-        
+        if (lawyerUpdates.updates.filter(up => (now - new Date(up.timestamp).getTime()) < oneDay).length >= 20) { showStatus("Daily limit 20", "error"); return; }
         const newUpdate = {
             id: Date.now() + Math.random(),
             type, content, mediaUrl: mediaUrl || null,
             timestamp: new Date().toISOString(),
-            expiresAt: new Date(Date.now() + EXPIRY_HOURS * 60 * 60 * 1000).toISOString()
+            expiresAt: new Date(Date.now() + EXPIRY_HOURS*3600000).toISOString()
         };
         lawyerUpdates.updates.push(newUpdate);
-        try {
-            const newSha = await saveData(currentData, currentSha, token);
-            currentSha = newSha;
-            showStatus("✅ Update posted! Appears within 30 sec.", "success");
-            document.getElementById("content").value = "";
-            document.getElementById("mediaUrl").value = "";
-            pendingImageFile = pendingVideoFile = null;
-            document.getElementById("imageFileInput").value = "";
-            document.getElementById("videoFileInput").value = "";
-            document.getElementById("imagePreview").style.display = "none";
-            document.getElementById("videoInfo").innerHTML = "";
-            await loadData(token);
-        } catch (err) { showStatus("Error: " + err.message, "error"); }
+        const newSha = await saveData(currentData, currentSha, token);
+        currentSha = newSha;
+        showStatus("✅ Posted! Article frame ready with lawyer picture.", "success");
+        document.getElementById("content").value = "";
+        document.getElementById("mediaUrl").value = "";
+        pendingImageFile = pendingVideoFile = null;
+        document.getElementById("imageFileInput").value = "";
+        document.getElementById("videoFileInput").value = "";
+        await loadData(token);
     }
 
-    function showStatus(msg, type) {
-        const div = document.getElementById("statusMsg");
-        div.textContent = msg;
-        div.className = `status ${type}`;
-        setTimeout(() => div.className = "status", 4000);
+    async function deleteLawyer(token) {
+        const id = parseInt(document.getElementById("lawyerId").value);
+        if (!id || !confirm(`Delete lawyer ${id} and all updates?`)) return;
+        currentData.lawyers = currentData.lawyers.filter(l => l.id !== id);
+        currentData.updates = currentData.updates.filter(u => u.lawyerId !== id);
+        const newSha = await saveData(currentData, currentSha, token);
+        currentSha = newSha;
+        showStatus("Lawyer deleted", "success");
+        await loadData(token);
+        document.getElementById("lawyerId").value = "";
+        document.getElementById("lawyerName").value = "";
+        document.getElementById("lawyerInitials").value = "";
+        document.getElementById("currentLawyerPicPreview").innerHTML = "";
     }
 
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;')); }
-
-    // UI toggles for media upload
-    function toggleMediaUpload() {
-        const type = document.getElementById("updateType").value;
-        const imageGroup = document.getElementById("imageUploadGroup");
-        const videoGroup = document.getElementById("videoUploadGroup");
-        const mediaUrlGroup = document.getElementById("mediaUrlGroup");
-        imageGroup.style.display = "none";
-        videoGroup.style.display = "none";
-        if (type === "image") { imageGroup.style.display = "block"; mediaUrlGroup.style.display = "block"; document.querySelector("#mediaUrlGroup label").innerHTML = "Image URL (optional)"; }
-        else if (type === "video") { videoGroup.style.display = "block"; mediaUrlGroup.style.display = "block"; document.querySelector("#mediaUrlGroup label").innerHTML = "Video URL (optional)"; }
-        else { mediaUrlGroup.style.display = "block"; if (type === "article") document.querySelector("#mediaUrlGroup label").innerHTML = "Article URL (required)"; else document.querySelector("#mediaUrlGroup label").innerHTML = "Media URL (optional)"; }
-        if (type !== "image") { pendingImageFile = null; document.getElementById("imageFileInput").value = ""; document.getElementById("imagePreview").style.display = "none"; }
-        if (type !== "video") { pendingVideoFile = null; document.getElementById("videoFileInput").value = ""; document.getElementById("videoInfo").innerHTML = ""; }
-    }
-
-    function handleImageFileSelect() {
-        const file = document.getElementById("imageFileInput").files[0];
-        if (file && file.type.startsWith("image/")) {
-            pendingImageFile = file;
-            const reader = new FileReader();
-            reader.onload = e => { document.getElementById("imagePreview").src = e.target.result; document.getElementById("imagePreview").style.display = "block"; };
-            reader.readAsDataURL(file);
-        } else { pendingImageFile = null; document.getElementById("imagePreview").style.display = "none"; }
-    }
-    function handleVideoFileSelect() {
-        const file = document.getElementById("videoFileInput").files[0];
-        if (file && file.type.startsWith("video/")) {
-            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
-                document.getElementById("videoInfo").innerHTML = `<span style="color:#b91c1c;">❌ Exceeds ${MAX_VIDEO_SIZE_MB}MB (${sizeMB}MB)</span>`;
-                pendingVideoFile = null;
-                return;
-            }
-            pendingVideoFile = file;
-            document.getElementById("videoInfo").innerHTML = `<span style="color:#166534;">✅ Ready: ${file.name} (${sizeMB} MB)</span>`;
-        } else { pendingVideoFile = null; document.getElementById("videoInfo").innerHTML = ""; }
-    }
-    function clearImage() { pendingImageFile = null; document.getElementById("imageFileInput").value = ""; document.getElementById("imagePreview").style.display = "none"; }
-    function clearVideo() { pendingVideoFile = null; document.getElementById("videoFileInput").value = ""; document.getElementById("videoInfo").innerHTML = ""; }
-
-    // Event listeners
-    document.getElementById("addLawyerBtn").addEventListener("click", async () => {
-        const token = document.getElementById("githubToken").value.trim();
-        if (!token) { showStatus("Enter GitHub token first.", "error"); return; }
-        await addOrUpdateLawyer(token);
-    });
-    document.getElementById("deleteLawyerBtn").addEventListener("click", async () => {
-        const token = document.getElementById("githubToken").value.trim();
-        if (!token) { showStatus("Enter GitHub token first.", "error"); return; }
-        await deleteLawyer(token);
-    });
-    document.getElementById("postUpdateBtn").addEventListener("click", async () => {
-        const token = document.getElementById("githubToken").value.trim();
-        if (!token) { showStatus("Enter GitHub token first.", "error"); return; }
-        await postUpdate(token);
-    });
+    function showStatus(msg, type) { const div = document.getElementById("statusMsg"); div.textContent = msg; div.className = `status ${type}`; setTimeout(() => div.className = "status", 4000); }
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':(m==='<'?'&lt;':'&gt;')); }
+    function toggleMediaUpload() { const t = document.getElementById("updateType").value; document.getElementById("imageUploadGroup").style.display = t==="image"?"block":"none"; document.getElementById("videoUploadGroup").style.display = t==="video"?"block":"none"; document.getElementById("mediaUrlGroup").style.display = "block"; if(t==="article") document.querySelector("#mediaUrlGroup label").innerHTML = "🔗 Article URL (required)"; else document.querySelector("#mediaUrlGroup label").innerHTML = "Media URL (optional)"; }
+    document.getElementById("lawyerPicInput").addEventListener("change", (e) => { if(e.target.files[0]) pendingLawyerPicFile = e.target.files[0]; else pendingLawyerPicFile = null; });
+    document.getElementById("clearLawyerPicBtn").addEventListener("click", () => { pendingLawyerPicFile = null; document.getElementById("lawyerPicInput").value = ""; });
+    document.getElementById("imageFileInput").addEventListener("change", (e) => { if(e.target.files[0]) { pendingImageFile = e.target.files[0]; const reader = new FileReader(); reader.onload = ev => { document.getElementById("imagePreview").src = ev.target.result; document.getElementById("imagePreview").style.display = "block"; }; reader.readAsDataURL(e.target.files[0]); } });
+    document.getElementById("videoFileInput").addEventListener("change", (e) => { if(e.target.files[0]) pendingVideoFile = e.target.files[0]; else pendingVideoFile = null; });
+    document.getElementById("addLawyerBtn").onclick = async () => { const t = document.getElementById("githubToken").value.trim(); if(!t) { showStatus("Token needed","error"); return; } await addOrUpdateLawyer(t); };
+    document.getElementById("deleteLawyerBtn").onclick = async () => { const t = document.getElementById("githubToken").value.trim(); if(!t) return; await deleteLawyer(t); };
+    document.getElementById("postUpdateBtn").onclick = async () => { const t = document.getElementById("githubToken").value.trim(); if(!t) { showStatus("Token required","error"); return; } await postUpdate(t); };
     document.getElementById("updateType").addEventListener("change", toggleMediaUpload);
-    document.getElementById("imageFileInput").addEventListener("change", handleImageFileSelect);
-    document.getElementById("clearImageBtn").addEventListener("click", clearImage);
-    document.getElementById("videoFileInput").addEventListener("change", handleVideoFileSelect);
-    document.getElementById("clearVideoBtn").addEventListener("click", clearVideo);
-    
-    const storedToken = localStorage.getItem("lex_admin_token");
-    if (storedToken) {
-        document.getElementById("githubToken").value = storedToken;
-        loadData(storedToken).catch(console.warn);
-    }
-    document.getElementById("githubToken").addEventListener("input", (e) => {
-        const token = e.target.value.trim();
-        if (token) { localStorage.setItem("lex_admin_token", token); loadData(token).catch(console.warn); }
-    });
-    document.getElementById("modeDisplay").innerHTML = '<i class="fas fa-shield-alt"></i> Admin: Manage lawyers, post updates, edit/delete any update. Expired updates auto-deleted.';
+    const stored = localStorage.getItem("lex_admin_token");
+    if(stored) { document.getElementById("githubToken").value = stored; loadData(stored).catch(console.warn); }
+    document.getElementById("githubToken").addEventListener("input", (e) => { const t=e.target.value.trim(); if(t) { localStorage.setItem("lex_admin_token", t); loadData(t).catch(console.warn); } });
     toggleMediaUpload();
 </script>
 </body>
