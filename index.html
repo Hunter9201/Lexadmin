@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Lex · Admin Studio — Articles without mandatory URL</title>
+    <title>Lex · Admin Studio — Articles with Lawyer Photo Frame</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -117,11 +117,6 @@
             background: #991b1b;
         }
 
-        .btn-warning {
-            background: #eab308;
-            color: #1f2937;
-        }
-
         .status {
             margin-top: 1.2rem;
             padding: 12px 18px;
@@ -183,7 +178,7 @@
             color: #1e4a6e;
         }
 
-        /* ---------- PREMIUM ARTICLE FRAME (no URL required) ---------- */
+        /* ---------- PREMIUM ARTICLE FRAME (with lawyer photo) ---------- */
         .article-preview-card {
             background: white;
             border-radius: 32px;
@@ -350,7 +345,7 @@
 <body>
 <div class="container">
     <h1><i class="fas fa-scale-balanced"></i> Lex · Article Studio & Admin Core</h1>
-    <div id="modeDisplay" class="mode-badge"><i class="fas fa-magnifying-glass-chart"></i> Full Management · Articles no longer require a URL (optional link)</div>
+    <div id="modeDisplay" class="mode-badge"><i class="fas fa-magnifying-glass-chart"></i> Full Management · Articles display lawyer photo in elegant frame (optional link)</div>
 
     <div class="form-group">
         <label><i class="fab fa-github"></i> GitHub Token (repo scope)</label>
@@ -453,7 +448,6 @@
     let pendingImageFile = null;
     let pendingVideoFile = null;
     let pendingLawyerPicFile = null;
-    let editingLawyerIdTemp = null;
 
     function ghHeaders(token) {
         return {
@@ -573,7 +567,6 @@
                     document.getElementById("lawyerId").value = lawyer.id;
                     document.getElementById("lawyerName").value = lawyer.name;
                     document.getElementById("lawyerInitials").value = lawyer.initials;
-                    editingLawyerIdTemp = id;
                     const previewDiv = document.getElementById("currentLawyerPicPreview");
                     if (lawyer.profilePic) previewDiv.innerHTML = `<img src="${lawyer.profilePic}" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:1px solid #cbd5e1;"> <span style="font-size:0.7rem;">Current picture</span>`;
                     else previewDiv.innerHTML = `<span style="font-size:0.7rem;">No profile picture set</span>`;
@@ -614,7 +607,7 @@
         };
     }
 
-    // Premium article frame with optional link
+    // Premium article frame with lawyer photo (if exists)
     function renderArticleFrame(update, lawyer) {
         const expiryDate = new Date(update.expiresAt).toLocaleString();
         const avatarHtml = lawyer?.profilePic ?
