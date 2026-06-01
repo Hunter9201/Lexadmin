@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Lex · Admin Suite — Article Studio & Lawyer Management</title>
+    <title>Lex · Admin Studio — Articles without mandatory URL</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -122,12 +122,6 @@
             color: #1f2937;
         }
 
-        .btn-outline {
-            background: white;
-            border: 1px solid #cbd5e1;
-            color: #1e4a6e;
-        }
-
         .status {
             margin-top: 1.2rem;
             padding: 12px 18px;
@@ -158,7 +152,6 @@
             background: #e2edf5;
         }
 
-        /* lawyer list & cards */
         .lawyer-list, .updates-list {
             margin-top: 1.2rem;
         }
@@ -188,11 +181,9 @@
             font-weight: 700;
             font-size: 1.2rem;
             color: #1e4a6e;
-            background-size: cover;
-            background-position: center;
         }
 
-        /* ---------- ARTICLE CARD (premium frame) ---------- */
+        /* ---------- PREMIUM ARTICLE FRAME (no URL required) ---------- */
         .article-preview-card {
             background: white;
             border-radius: 32px;
@@ -359,7 +350,7 @@
 <body>
 <div class="container">
     <h1><i class="fas fa-scale-balanced"></i> Lex · Article Studio & Admin Core</h1>
-    <div id="modeDisplay" class="mode-badge"><i class="fas fa-magnifying-glass-chart"></i> Full Management + Premium Article Frames (lawyer picture integrated)</div>
+    <div id="modeDisplay" class="mode-badge"><i class="fas fa-magnifying-glass-chart"></i> Full Management · Articles no longer require a URL (optional link)</div>
 
     <div class="form-group">
         <label><i class="fab fa-github"></i> GitHub Token (repo scope)</label>
@@ -399,7 +390,7 @@
         <hr>
     </div>
 
-    <!-- ========== SECTION 2: POST NEW UPDATE ========== -->
+    <!-- ========== SECTION 2: POST NEW UPDATE (Article URL is optional) ========== -->
     <div id="postUpdatesSection">
         <h2><i class="fas fa-newspaper"></i> Publish Article / Update</h2>
         <div class="form-group">
@@ -410,7 +401,7 @@
             <label>Update Type</label>
             <select id="updateType">
                 <option value="text">📝 Text note</option>
-                <option value="article" selected>📰 Article (featured frame with lawyer picture)</option>
+                <option value="article" selected>📰 Article (elegant frame with lawyer picture, URL optional)</option>
                 <option value="image">🖼️ Image</option>
                 <option value="video">🎬 Video</option>
             </select>
@@ -430,8 +421,8 @@
             <div id="videoInfo" class="file-info"></div>
         </div>
         <div class="form-group" id="mediaUrlGroup">
-            <label>Article Link / Media URL (required for article)</label>
-            <input type="url" id="mediaUrl" placeholder="https://example.com/full-article">
+            <label>🔗 Article Link / Media URL (optional — for articles you can leave empty)</label>
+            <input type="url" id="mediaUrl" placeholder="https://example.com/full-article (optional)">
         </div>
         <button id="postUpdateBtn"><i class="fas fa-paper-plane"></i> Publish Update</button>
         <div id="statusMsg" class="status"></div>
@@ -439,7 +430,7 @@
 
     <!-- ========== SECTION 3: MANAGE UPDATES WITH PREMIUM ARTICLE FRAME ========== -->
     <div id="manageUpdatesSection">
-        <h2><i class="fas fa-palette"></i> Manage Updates — Articles with elegant frame & lawyer portrait</h2>
+        <h2><i class="fas fa-palette"></i> Manage Updates — Articles with elegant frame & optional link</h2>
         <div class="form-group">
             <label>Select Lawyer to manage their posts</label>
             <select id="viewLawyerSelect"></select>
@@ -461,10 +452,9 @@
     let currentSha = null;
     let pendingImageFile = null;
     let pendingVideoFile = null;
-    let pendingLawyerPicFile = null;      // for lawyer profile image upload
-    let editingLawyerIdTemp = null;        // track selected lawyer for picture preview
+    let pendingLawyerPicFile = null;
+    let editingLawyerIdTemp = null;
 
-    // Helper: GH headers
     function ghHeaders(token) {
         return {
             "Accept": "application/vnd.github+json",
@@ -514,7 +504,6 @@
             const data = JSON.parse(content);
             if (!data.lawyers) data.lawyers = [];
             if (!data.updates) data.updates = [];
-            // ensure each lawyer has profilePic field (migration)
             for (let l of data.lawyers) if (!l.profilePic) l.profilePic = null;
             return { exists: true, sha: json.sha, data };
         } catch (err) { throw new Error("Fetch failed: " + err.message); }
@@ -625,12 +614,13 @@
         };
     }
 
-    // Premium Article Frame Renderer (with lawyer picture)
+    // Premium article frame with optional link
     function renderArticleFrame(update, lawyer) {
         const expiryDate = new Date(update.expiresAt).toLocaleString();
         const avatarHtml = lawyer?.profilePic ?
             `<img src="${lawyer.profilePic}" class="lawyer-picture" alt="lawyer">` :
             `<div class="lawyer-initials-placeholder">${(lawyer?.initials?.[0] || 'L')}</div>`;
+        const hasLink = update.mediaUrl && update.mediaUrl.trim() !== "";
         return `
             <div class="article-preview-card">
                 <div class="article-inner">
@@ -646,9 +636,9 @@
                         </div>
                         <div class="article-title">${escapeHtml(update.content)}</div>
                         <div class="article-excerpt">
-                            ${update.mediaUrl ? `🔗 Full article attached — click below to read more.` : 'Insights from legal expert.'}
+                            ${hasLink ? '📖 Full analysis available — click below to read the complete article.' : '✨ Legal insight from the expert. No external link required.'}
                         </div>
-                        ${update.mediaUrl ? `<a href="${update.mediaUrl}" target="_blank" class="article-link"><i class="fas fa-external-link-alt"></i> Read full article →</a>` : ''}
+                        ${hasLink ? `<a href="${update.mediaUrl}" target="_blank" class="article-link"><i class="fas fa-external-link-alt"></i> Read full article →</a>` : '<div style="font-size:0.75rem; color:#6c86a3;"><i class="fas fa-book-open"></i> Standalone article</div>'}
                         <div class="update-actions">
                             <button class="edit-update-btn" data-id="${update.id}" data-lawyer="${lawyer.id}" style="background:#eab308; color:#1f2937;">✏️ Edit</button>
                             <button class="delete-update-btn" data-id="${update.id}" data-lawyer="${lawyer.id}" class="btn-danger" style="background:#b91c1c;">🗑️ Delete</button>
@@ -678,7 +668,6 @@
                 wrapper.innerHTML = articleHtml;
                 const card = wrapper.firstElementChild;
                 container.appendChild(card);
-                // attach events after render
                 card.querySelectorAll(".edit-update-btn").forEach(btn => btn.addEventListener("click", (e) => showEditForm(update.id, lawyerId)));
                 card.querySelectorAll(".delete-update-btn").forEach(btn => btn.addEventListener("click", async (e) => { if(confirm("Delete?")) await deleteUpdate(lawyerId, update.id); }));
             } else {
@@ -733,7 +722,7 @@
         const newContent = prompt("Edit content:", update.content);
         if (newContent === null) return;
         update.content = newContent.trim() || update.content;
-        const newUrl = prompt("Edit media URL (leave as is):", update.mediaUrl || "");
+        const newUrl = prompt("Edit media URL (optional):", update.mediaUrl || "");
         if (newUrl !== null) update.mediaUrl = newUrl || null;
         try {
             const newSha = await saveData(currentData, currentSha, token);
@@ -794,7 +783,7 @@
             pendingVideoFile = null;
         }
         if (!content && type !== "image" && type !== "video") { showStatus("Content required", "error"); return; }
-        if ((type === "article") && !mediaUrl) { showStatus("Article URL required", "error"); return; }
+        // For article type, mediaUrl is optional — no validation required.
         let lawyerUpdates = currentData.updates.find(u => u.lawyerId === lawyerId);
         if (!lawyerUpdates) { lawyerUpdates = { lawyerId, updates: [] }; currentData.updates.push(lawyerUpdates); }
         const oneDay = 24*3600000;
@@ -809,7 +798,7 @@
         lawyerUpdates.updates.push(newUpdate);
         const newSha = await saveData(currentData, currentSha, token);
         currentSha = newSha;
-        showStatus("✅ Posted! Article frame ready with lawyer picture.", "success");
+        showStatus("✅ Posted! Article frame ready — link is optional, picture displayed.", "success");
         document.getElementById("content").value = "";
         document.getElementById("mediaUrl").value = "";
         pendingImageFile = pendingVideoFile = null;
@@ -835,7 +824,14 @@
 
     function showStatus(msg, type) { const div = document.getElementById("statusMsg"); div.textContent = msg; div.className = `status ${type}`; setTimeout(() => div.className = "status", 4000); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m==='&'?'&amp;':(m==='<'?'&lt;':'&gt;')); }
-    function toggleMediaUpload() { const t = document.getElementById("updateType").value; document.getElementById("imageUploadGroup").style.display = t==="image"?"block":"none"; document.getElementById("videoUploadGroup").style.display = t==="video"?"block":"none"; document.getElementById("mediaUrlGroup").style.display = "block"; if(t==="article") document.querySelector("#mediaUrlGroup label").innerHTML = "🔗 Article URL (required)"; else document.querySelector("#mediaUrlGroup label").innerHTML = "Media URL (optional)"; }
+    function toggleMediaUpload() { 
+        const t = document.getElementById("updateType").value; 
+        document.getElementById("imageUploadGroup").style.display = t==="image"?"block":"none"; 
+        document.getElementById("videoUploadGroup").style.display = t==="video"?"block":"none"; 
+        document.getElementById("mediaUrlGroup").style.display = "block"; 
+        if(t==="article") document.querySelector("#mediaUrlGroup label").innerHTML = "🔗 Article Link (optional — can be left empty)"; 
+        else document.querySelector("#mediaUrlGroup label").innerHTML = "Media URL (optional)"; 
+    }
     document.getElementById("lawyerPicInput").addEventListener("change", (e) => { if(e.target.files[0]) pendingLawyerPicFile = e.target.files[0]; else pendingLawyerPicFile = null; });
     document.getElementById("clearLawyerPicBtn").addEventListener("click", () => { pendingLawyerPicFile = null; document.getElementById("lawyerPicInput").value = ""; });
     document.getElementById("imageFileInput").addEventListener("change", (e) => { if(e.target.files[0]) { pendingImageFile = e.target.files[0]; const reader = new FileReader(); reader.onload = ev => { document.getElementById("imagePreview").src = ev.target.result; document.getElementById("imagePreview").style.display = "block"; }; reader.readAsDataURL(e.target.files[0]); } });
