@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Lex · Admin Studio — Articles with Lawyer Photo Frame</title>
+    <title>Lex · Article Studio — Image Inside Frame</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -178,7 +178,7 @@
             color: #1e4a6e;
         }
 
-        /* ---------- PREMIUM ARTICLE FRAME (with lawyer photo) ---------- */
+        /* ---------- PREMIUM ARTICLE FRAME (with lawyer photo + article image) ---------- */
         .article-preview-card {
             background: white;
             border-radius: 32px;
@@ -268,6 +268,22 @@
             margin-bottom: 16px;
         }
 
+        /* Article image inside frame */
+        .article-inline-image {
+            margin: 16px 0;
+            border-radius: 24px;
+            overflow: hidden;
+            max-width: 100%;
+        }
+        .article-inline-image img {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 24px;
+            display: block;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+        }
+
         .article-link {
             display: inline-flex;
             align-items: center;
@@ -344,8 +360,8 @@
 </head>
 <body>
 <div class="container">
-    <h1><i class="fas fa-scale-balanced"></i> Lex · Article Studio & Admin Core</h1>
-    <div id="modeDisplay" class="mode-badge"><i class="fas fa-magnifying-glass-chart"></i> Full Management · Articles display lawyer photo in elegant frame (optional link)</div>
+    <h1><i class="fas fa-scale-balanced"></i> Lex · Article Studio — Image Inside Frame</h1>
+    <div id="modeDisplay" class="mode-badge"><i class="fas fa-image"></i> Articles now support an image that appears inside the frame (lawyer photo + article image)</div>
 
     <div class="form-group">
         <label><i class="fab fa-github"></i> GitHub Token (repo scope)</label>
@@ -375,7 +391,7 @@
                 <button type="button" id="clearLawyerPicBtn" class="btn-secondary">Clear</button>
             </div>
             <div id="currentLawyerPicPreview" style="margin-top: 8px;"></div>
-            <div class="token-info">Upload a square image for the perfect article avatar.</div>
+            <div class="token-info">Upload a square image for the article avatar.</div>
         </div>
         <div>
             <button id="addLawyerBtn"><i class="fas fa-save"></i> Add / Update Lawyer</button>
@@ -385,7 +401,7 @@
         <hr>
     </div>
 
-    <!-- ========== SECTION 2: POST NEW UPDATE (Article URL is optional) ========== -->
+    <!-- ========== SECTION 2: POST NEW UPDATE (Article with optional image inside frame) ========== -->
     <div id="postUpdatesSection">
         <h2><i class="fas fa-newspaper"></i> Publish Article / Update</h2>
         <div class="form-group">
@@ -396,8 +412,8 @@
             <label>Update Type</label>
             <select id="updateType">
                 <option value="text">📝 Text note</option>
-                <option value="article" selected>📰 Article (elegant frame with lawyer picture, URL optional)</option>
-                <option value="image">🖼️ Image</option>
+                <option value="article" selected>📰 Article (elegant frame with lawyer photo + optional article image)</option>
+                <option value="image">🖼️ Image (standalone)</option>
                 <option value="video">🎬 Video</option>
             </select>
         </div>
@@ -405,10 +421,22 @@
             <label>Title / Content *</label>
             <textarea id="content" rows="2" placeholder="Article headline or message..."></textarea>
         </div>
+
+        <!-- Article Image Upload (appears inside the frame) -->
+        <div id="articleImageGroup" style="display: block;">
+            <label>📸 Article Image (optional — will appear inside article frame)</label>
+            <div class="inline-buttons">
+                <input type="file" id="articleImageInput" accept="image/jpeg,image/png,image/gif,image/webp">
+                <button type="button" id="clearArticleImageBtn" class="btn-secondary">Clear</button>
+            </div>
+            <img id="articleImagePreview" class="preview-img" style="display: none; margin-top: 6px;">
+            <div class="token-info">Upload an image to be displayed inside the article frame (below the text).</div>
+        </div>
+
         <div id="imageUploadGroup" style="display: none;">
-            <label>Upload Image from computer</label>
+            <label>Upload Image (for standalone image type)</label>
             <input type="file" id="imageFileInput" accept="image/jpeg,image/png,image/gif,image/webp">
-            <img id="imagePreview" class="preview-img" style="display: none; margin-top: 6px;">
+            <img id="imagePreview" class="preview-img" style="display: none;">
         </div>
         <div id="videoUploadGroup" style="display: none;">
             <label>Upload Video (max 5MB)</label>
@@ -416,7 +444,7 @@
             <div id="videoInfo" class="file-info"></div>
         </div>
         <div class="form-group" id="mediaUrlGroup">
-            <label>🔗 Article Link / Media URL (optional — for articles you can leave empty)</label>
+            <label>🔗 External Link (optional — for further reading)</label>
             <input type="url" id="mediaUrl" placeholder="https://example.com/full-article (optional)">
         </div>
         <button id="postUpdateBtn"><i class="fas fa-paper-plane"></i> Publish Update</button>
@@ -425,7 +453,7 @@
 
     <!-- ========== SECTION 3: MANAGE UPDATES WITH PREMIUM ARTICLE FRAME ========== -->
     <div id="manageUpdatesSection">
-        <h2><i class="fas fa-palette"></i> Manage Updates — Articles with elegant frame & optional link</h2>
+        <h2><i class="fas fa-palette"></i> Manage Updates — Articles with image inside frame</h2>
         <div class="form-group">
             <label>Select Lawyer to manage their posts</label>
             <select id="viewLawyerSelect"></select>
@@ -445,9 +473,10 @@
 
     let currentData = { lawyers: [], updates: [] };
     let currentSha = null;
-    let pendingImageFile = null;
+    let pendingImageFile = null;        // for standalone image type
     let pendingVideoFile = null;
     let pendingLawyerPicFile = null;
+    let pendingArticleImageFile = null;   // image to be embedded inside article frame
 
     function ghHeaders(token) {
         return {
@@ -499,6 +528,12 @@
             if (!data.lawyers) data.lawyers = [];
             if (!data.updates) data.updates = [];
             for (let l of data.lawyers) if (!l.profilePic) l.profilePic = null;
+            // ensure articleImageUrl field exists
+            for (let lu of data.updates) {
+                for (let u of lu.updates) {
+                    if (u.articleImageUrl === undefined) u.articleImageUrl = null;
+                }
+            }
             return { exists: true, sha: json.sha, data };
         } catch (err) { throw new Error("Fetch failed: " + err.message); }
     }
@@ -607,13 +642,14 @@
         };
     }
 
-    // Premium article frame with lawyer photo (if exists)
+    // Premium article frame with lawyer photo + optional article image inside frame
     function renderArticleFrame(update, lawyer) {
         const expiryDate = new Date(update.expiresAt).toLocaleString();
         const avatarHtml = lawyer?.profilePic ?
             `<img src="${lawyer.profilePic}" class="lawyer-picture" alt="lawyer">` :
             `<div class="lawyer-initials-placeholder">${(lawyer?.initials?.[0] || 'L')}</div>`;
         const hasLink = update.mediaUrl && update.mediaUrl.trim() !== "";
+        const hasArticleImage = update.articleImageUrl && update.articleImageUrl.trim() !== "";
         return `
             <div class="article-preview-card">
                 <div class="article-inner">
@@ -629,9 +665,10 @@
                         </div>
                         <div class="article-title">${escapeHtml(update.content)}</div>
                         <div class="article-excerpt">
-                            ${hasLink ? '📖 Full analysis available — click below to read the complete article.' : '✨ Legal insight from the expert. No external link required.'}
+                            ${hasLink ? '📖 External resource attached.' : '✨ Legal insight from the expert.'}
                         </div>
-                        ${hasLink ? `<a href="${update.mediaUrl}" target="_blank" class="article-link"><i class="fas fa-external-link-alt"></i> Read full article →</a>` : '<div style="font-size:0.75rem; color:#6c86a3;"><i class="fas fa-book-open"></i> Standalone article</div>'}
+                        ${hasArticleImage ? `<div class="article-inline-image"><img src="${update.articleImageUrl}" alt="Article visual"></div>` : ''}
+                        ${hasLink ? `<a href="${update.mediaUrl}" target="_blank" class="article-link"><i class="fas fa-external-link-alt"></i> Read more →</a>` : ''}
                         <div class="update-actions">
                             <button class="edit-update-btn" data-id="${update.id}" data-lawyer="${lawyer.id}" style="background:#eab308; color:#1f2937;">✏️ Edit</button>
                             <button class="delete-update-btn" data-id="${update.id}" data-lawyer="${lawyer.id}" class="btn-danger" style="background:#b91c1c;">🗑️ Delete</button>
@@ -715,8 +752,9 @@
         const newContent = prompt("Edit content:", update.content);
         if (newContent === null) return;
         update.content = newContent.trim() || update.content;
-        const newUrl = prompt("Edit media URL (optional):", update.mediaUrl || "");
+        const newUrl = prompt("Edit external link (optional):", update.mediaUrl || "");
         if (newUrl !== null) update.mediaUrl = newUrl || null;
+        // For simplicity, editing article image requires re-upload via separate UI; but we keep existing
         try {
             const newSha = await saveData(currentData, currentSha, token);
             currentSha = newSha;
@@ -765,6 +803,19 @@
         const type = document.getElementById("updateType").value;
         let content = document.getElementById("content").value.trim();
         let mediaUrl = document.getElementById("mediaUrl").value.trim();
+        let articleImageUrl = null;
+
+        // Handle article image upload
+        if (type === "article" && pendingArticleImageFile) {
+            showStatus("Uploading article image...", "success");
+            try {
+                articleImageUrl = await uploadFileToGitHub(pendingArticleImageFile, token, "article_images/");
+                pendingArticleImageFile = null;
+                document.getElementById("articleImageInput").value = "";
+                document.getElementById("articleImagePreview").style.display = "none";
+            } catch (err) { showStatus("Article image upload failed: " + err.message, "error"); return; }
+        }
+
         if (type === "image" && pendingImageFile) {
             mediaUrl = await uploadFileToGitHub(pendingImageFile, token);
             pendingImageFile = null;
@@ -776,27 +827,31 @@
             pendingVideoFile = null;
         }
         if (!content && type !== "image" && type !== "video") { showStatus("Content required", "error"); return; }
-        // For article type, mediaUrl is optional — no validation required.
+        
         let lawyerUpdates = currentData.updates.find(u => u.lawyerId === lawyerId);
         if (!lawyerUpdates) { lawyerUpdates = { lawyerId, updates: [] }; currentData.updates.push(lawyerUpdates); }
         const oneDay = 24*3600000;
         const now = Date.now();
         if (lawyerUpdates.updates.filter(up => (now - new Date(up.timestamp).getTime()) < oneDay).length >= 20) { showStatus("Daily limit 20", "error"); return; }
+        
         const newUpdate = {
             id: Date.now() + Math.random(),
             type, content, mediaUrl: mediaUrl || null,
+            articleImageUrl: articleImageUrl || null,
             timestamp: new Date().toISOString(),
             expiresAt: new Date(Date.now() + EXPIRY_HOURS*3600000).toISOString()
         };
         lawyerUpdates.updates.push(newUpdate);
         const newSha = await saveData(currentData, currentSha, token);
         currentSha = newSha;
-        showStatus("✅ Posted! Article frame ready — link is optional, picture displayed.", "success");
+        showStatus("✅ Posted! Article image appears inside frame (if uploaded).", "success");
         document.getElementById("content").value = "";
         document.getElementById("mediaUrl").value = "";
         pendingImageFile = pendingVideoFile = null;
         document.getElementById("imageFileInput").value = "";
         document.getElementById("videoFileInput").value = "";
+        document.getElementById("articleImageInput").value = "";
+        document.getElementById("articleImagePreview").style.display = "none";
         await loadData(token);
     }
 
@@ -820,13 +875,25 @@
     function toggleMediaUpload() { 
         const t = document.getElementById("updateType").value; 
         document.getElementById("imageUploadGroup").style.display = t==="image"?"block":"none"; 
-        document.getElementById("videoUploadGroup").style.display = t==="video"?"block":"none"; 
-        document.getElementById("mediaUrlGroup").style.display = "block"; 
-        if(t==="article") document.querySelector("#mediaUrlGroup label").innerHTML = "🔗 Article Link (optional — can be left empty)"; 
+        document.getElementById("videoUploadGroup").style.display = t==="video"?"block":"none";
+        document.getElementById("articleImageGroup").style.display = t==="article"?"block":"none";
+        document.getElementById("mediaUrlGroup").style.display = "block";
+        if(t==="article") document.querySelector("#mediaUrlGroup label").innerHTML = "🔗 External Link (optional)"; 
         else document.querySelector("#mediaUrlGroup label").innerHTML = "Media URL (optional)"; 
     }
+
+    // Event listeners
     document.getElementById("lawyerPicInput").addEventListener("change", (e) => { if(e.target.files[0]) pendingLawyerPicFile = e.target.files[0]; else pendingLawyerPicFile = null; });
     document.getElementById("clearLawyerPicBtn").addEventListener("click", () => { pendingLawyerPicFile = null; document.getElementById("lawyerPicInput").value = ""; });
+    document.getElementById("articleImageInput").addEventListener("change", (e) => { 
+        if(e.target.files[0]) { 
+            pendingArticleImageFile = e.target.files[0]; 
+            const reader = new FileReader(); 
+            reader.onload = ev => { document.getElementById("articleImagePreview").src = ev.target.result; document.getElementById("articleImagePreview").style.display = "block"; }; 
+            reader.readAsDataURL(e.target.files[0]); 
+        } else { pendingArticleImageFile = null; document.getElementById("articleImagePreview").style.display = "none"; }
+    });
+    document.getElementById("clearArticleImageBtn").addEventListener("click", () => { pendingArticleImageFile = null; document.getElementById("articleImageInput").value = ""; document.getElementById("articleImagePreview").style.display = "none"; });
     document.getElementById("imageFileInput").addEventListener("change", (e) => { if(e.target.files[0]) { pendingImageFile = e.target.files[0]; const reader = new FileReader(); reader.onload = ev => { document.getElementById("imagePreview").src = ev.target.result; document.getElementById("imagePreview").style.display = "block"; }; reader.readAsDataURL(e.target.files[0]); } });
     document.getElementById("videoFileInput").addEventListener("change", (e) => { if(e.target.files[0]) pendingVideoFile = e.target.files[0]; else pendingVideoFile = null; });
     document.getElementById("addLawyerBtn").onclick = async () => { const t = document.getElementById("githubToken").value.trim(); if(!t) { showStatus("Token needed","error"); return; } await addOrUpdateLawyer(t); };
